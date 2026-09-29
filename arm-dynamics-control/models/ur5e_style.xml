@@ -1,0 +1,103 @@
+<!--
+  6-DOF arm with UR5e-style kinematics and inertial parameters (masses, centres of
+  mass and inertias as published in Universal Robots' public robot description).
+  Visual geometry is simplified to primitives; collisions are disabled because the
+  project studies free-space dynamics and control.
+
+  The comment marker inside wrist_3_link is replaced by a welded payload body when
+  armctl.models.load_ur5e(payload_kg=...) is called.
+-->
+<mujoco model="ur5e_style">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.001" gravity="0 0 -9.81">
+    <flag contact="disable"/>
+  </option>
+
+  <visual>
+    <global offwidth="640" offheight="480"/>
+    <headlight ambient="0.35 0.35 0.35" diffuse="0.5 0.5 0.5"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.98 0.98 0.97" rgb2="0.86 0.88 0.9" width="64" height="64"/>
+  </asset>
+
+  <default>
+    <joint axis="0 1 0" armature="0.1" range="-6.28319 6.28319"/>
+    <geom contype="0" conaffinity="0" rgba="0.72 0.74 0.78 1"/>
+    <default class="joint_cap">
+      <geom type="cylinder" rgba="0.2 0.45 0.8 1"/>
+    </default>
+    <default class="link">
+      <geom type="capsule"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <light pos="0 0 3" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="1.5 1.5 0.05" rgba="0.92 0.92 0.92 1"/>
+
+    <body name="base" quat="0 0 0 -1">
+      <inertial mass="4.0" pos="0 0 0" diaginertia="0.00443333156 0.00443333156 0.0072"/>
+      <geom class="joint_cap" size="0.075 0.05" pos="0 0 0.05"/>
+
+      <body name="shoulder_link" pos="0 0 0.163">
+        <inertial mass="3.7" pos="0 0 0" diaginertia="0.0102675 0.0102675 0.00666"/>
+        <joint name="shoulder_pan" axis="0 0 1"/>
+        <geom class="joint_cap" size="0.06 0.065"/>
+
+        <body name="upper_arm_link" pos="0 0.138 0" quat="1 0 1 0">
+          <inertial mass="8.393" pos="0 0 0.2125" diaginertia="0.133886 0.133886 0.0151074"/>
+          <joint name="shoulder_lift"/>
+          <geom class="joint_cap" size="0.06 0.07" quat="1 1 0 0"/>
+          <geom class="link" fromto="0 0 0 0 0 0.425" size="0.05"/>
+
+          <body name="forearm_link" pos="0 -0.131 0.425">
+            <inertial mass="2.275" pos="0 0 0.196" diaginertia="0.0311796 0.0311796 0.004095"/>
+            <joint name="elbow" range="-3.1415 3.1415"/>
+            <geom class="joint_cap" size="0.055 0.06" quat="1 1 0 0"/>
+            <geom class="link" fromto="0 0 0 0 0 0.392" size="0.04"/>
+
+            <body name="wrist_1_link" pos="0 0 0.392" quat="1 0 1 0">
+              <inertial mass="1.219" pos="0 0.127 0" diaginertia="0.0025599 0.0025599 0.0021942"/>
+              <joint name="wrist_1"/>
+              <geom class="joint_cap" size="0.045 0.05" quat="1 1 0 0"/>
+              <geom class="link" fromto="0 0 0 0 0.127 0" size="0.035"/>
+
+              <body name="wrist_2_link" pos="0 0.127 0">
+                <inertial mass="1.219" pos="0 0 0.1" diaginertia="0.0025599 0.0025599 0.0021942"/>
+                <joint name="wrist_2" axis="0 0 1"/>
+                <geom class="joint_cap" size="0.045 0.05"/>
+                <geom class="link" fromto="0 0 0 0 0 0.1" size="0.035"/>
+
+                <body name="wrist_3_link" pos="0 0 0.1">
+                  <inertial mass="0.1889" pos="0 0.0771683 0" quat="1 0 0 1"
+                            diaginertia="0.000132134 9.90863e-05 9.90863e-05"/>
+                  <joint name="wrist_3"/>
+                  <geom class="joint_cap" size="0.04 0.045" quat="1 1 0 0"/>
+                  <geom class="link" fromto="0 0 0 0 0.1 0" size="0.03"/>
+                  <site name="ee" pos="0 0.1 0" quat="-1 1 0 0" size="0.01"/>
+                  <!-- PAYLOAD -->
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- Direct torque control with the UR5e's rated joint torque limits. -->
+  <actuator>
+    <motor name="shoulder_pan" joint="shoulder_pan" ctrlrange="-150 150"/>
+    <motor name="shoulder_lift" joint="shoulder_lift" ctrlrange="-150 150"/>
+    <motor name="elbow" joint="elbow" ctrlrange="-150 150"/>
+    <motor name="wrist_1" joint="wrist_1" ctrlrange="-28 28"/>
+    <motor name="wrist_2" joint="wrist_2" ctrlrange="-28 28"/>
+    <motor name="wrist_3" joint="wrist_3" ctrlrange="-28 28"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home" qpos="-1.5708 -1.5708 1.5708 -1.5708 -1.5708 0"/>
+  </keyframe>
+</mujoco>
