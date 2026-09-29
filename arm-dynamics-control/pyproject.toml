@@ -1,0 +1,13 @@
+[project]
+name = "armctl"
+version = "0.1.0"
+description = "From-scratch manipulator kinematics, dynamics, identification and control, validated against MuJoCo"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "mujoco>=3.1", "matplotlib>=3.7", "pillow>=9"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
