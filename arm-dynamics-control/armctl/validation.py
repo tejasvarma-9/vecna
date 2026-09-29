@@ -9,6 +9,16 @@ from .kinematics import jacobian, jacobian_dot_qdot, site_pose
 CHECKS = ("fk", "jacobian", "jdot_qdot", "rnea", "crba", "aba")
 
 
+def dense_mass_matrix(model, data):
+    """MuJoCo's M(q) as a dense matrix; mj_fullM changed signature in MuJoCo 3.10."""
+    M = np.zeros((model.nv, model.nv))
+    try:
+        mujoco.mj_fullM(model, data, M)          # MuJoCo >= 3.10
+    except TypeError:
+        mujoco.mj_fullM(model, M, data.qM)       # MuJoCo < 3.10
+    return M
+
+
 def compare_state(model, data, robot, site, q, qd, qdd, tau):
     """Max absolute error of each quantity against MuJoCo at one state."""
     sid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, site)
@@ -22,8 +32,7 @@ def compare_state(model, data, robot, site, q, qd, qdd, tau):
     mujoco.mj_jacSite(model, data, jacp, jacr, sid)
     jdp, jdr = np.zeros((3, nv)), np.zeros((3, nv))
     mujoco.mj_jacDot(model, data, jdp, jdr, data.site_xpos[sid], model.site_bodyid[sid])
-    M = np.zeros((nv, nv))
-    mujoco.mj_fullM(model, data, M)
+    M = dense_mass_matrix(model, data)
     qacc = data.qacc.copy()
 
     data.qacc[:] = qdd

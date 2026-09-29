@@ -1,13 +1,17 @@
 """Render results/demo.gif: operational-space control with the payload unmodelled vs identified.
 
-Needs an OpenGL backend; on a headless Linux machine run with MUJOCO_GL=osmesa (or egl).
+Needs OpenGL. On Windows and macOS MuJoCo's default backend works as is. On a Linux
+machine without a display this defaults to OSMesa (apt install libosmesa6); set
+MUJOCO_GL=egl instead if a GPU driver is available.
 """
 
 import os
 import sys
 from pathlib import Path
 
-os.environ.setdefault("MUJOCO_GL", "osmesa")
+# MuJoCo rejects "osmesa" outside Linux, so only pick it for headless Linux.
+if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+    os.environ.setdefault("MUJOCO_GL", "osmesa")
 
 import mujoco  # noqa: E402
 import numpy as np  # noqa: E402

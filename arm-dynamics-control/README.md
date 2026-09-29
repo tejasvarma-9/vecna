@@ -86,7 +86,7 @@ pytest                                   # 21 tests, ~13 s
 python scripts/validate_dynamics.py      # -> results/validation.md
 python scripts/benchmark_ik.py           # -> results/ik_benchmark.md   (~2 min)
 python scripts/compare_controllers.py    # -> results/controllers.md + plots (~1 min)
-MUJOCO_GL=osmesa python scripts/render_demo.py   # -> results/demo.gif (MUJOCO_GL=egl or unset on a desktop)
+python scripts/render_demo.py            # -> results/demo.gif (headless Linux: apt install libosmesa6)
 ```
 
 ## Design decisions and limitations
